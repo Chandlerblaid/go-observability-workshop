@@ -27,21 +27,21 @@ func work(log logrus.FieldLogger) error { // pretend work
 	return err
 }
 
-func httpLogginghandler(log logrus.FieldLogger, req *expvar.Int, errs *expvar.Int) http.HandlerFunc {
+func httpLoggingAndMetricsHandler(log logrus.FieldLogger, reqs, errs *expvar.Int) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		req.Add(1)
 		status := http.StatusOK // net/http returns 200 by default
 		log = log.WithFields(logrus.Fields{
 			"method": r.Method,
 			"path":   r.URL.String(),
 		})
 		defer func(t time.Time) {
-			log.WithField("func", "handler").WithField("status", status).WithField("duration", time.Since(t).Seconds()).Info()
+			reqs.Add(1)
+			log.WithField("status", status).WithField("duration", time.Since(t).Seconds()).Info()
 		}(time.Now())
 
 		if err := work(log); err != nil {
-			errs.Add(1)
 			status = http.StatusBadRequest
+			errs.Add(1)
 			http.Error(w, "Nope", status)
 			log.Error("OMG Error!")
 			return

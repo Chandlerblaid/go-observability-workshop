@@ -27,7 +27,7 @@ func work(log logrus.FieldLogger) error { // pretend work
 	return err
 }
 
-func httpLogginghandler(log logrus.FieldLogger) http.HandlerFunc {
+func httpLoggingHandler(log logrus.FieldLogger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		status := http.StatusOK // net/http returns 200 by default
 		log = log.WithFields(logrus.Fields{
@@ -70,7 +70,7 @@ func main() {
 	ex := expvar.NewString("Port")
 	ex.Set(port)
 
-	http.HandleFunc("/", httpLogginghandler(log))
+	http.HandleFunc("/", httpLoggingHandler(log))
 
 	log.WithField("func", "main").Info("Listening at: http://localhost:" + port)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
