@@ -2,6 +2,7 @@ package main
 
 import (
 	"errors"
+	"expvar"
 	"log"
 	"math/rand"
 	"net/http"
@@ -64,6 +65,10 @@ func main() {
 	if port == "" {
 		port = "8080"
 	}
+
+	// Expose port to expvar
+	ex := expvar.NewString("Port")
+	ex.Set(port)
 
 	http.HandleFunc("/", httpLogginghandler(log))
 
